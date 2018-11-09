@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>springboot_test</title>
+    <script src="/js/common/jquery-3.3.1.js"></script>
+    <script>
+        $(function () {
+            $("button:eq(0)").click(function () {
+                //alert("点击");
+                $("p").load("/load.txt");
+
+            });
+            $("button:eq(1)").click(function () {
+                var val = $("#input_1").val();
+                // alert(val)
+                if ($.isEmptyObject(val))
+                    val = "无名者";
+                var url = "/getmethod?name=" + val;
+                // alert(url);
+                $.get(url, function (data, status) {
+
+                    $("#p2").text("请求者:'" + data.name + "',返回信息':" + data.data + "'");
+
+                }).fail(function () {
+                    alert("请求失败")
+                });
+            });
+
+            //获取表单中所有的数据
+            $("#subbtn").click(function () {
+                var vals={}
+                var array = $("form").serializeArray();
+                $.each(array,function () {
+                    vals[this.name]=this.value;
+                })
+                alert("输入内容："+JSON.stringify(vals))
+            });
+        });
+    </script>
+</head>
+<body>
+<h3>点击按钮发送get请求获取文本</h3>
+<p>这儿显示</p>
+<button type="button">click here</button>
+<hr/>
+<br/>
+<h3>发送get请求</h3>
+<p id="p2">这儿显示结果</p>
+<input id="input_1" type="text">
+<button type="button">点击发送get请求</button>
+<hr>
+   
+    <form>
+
+        <input name="username" type="text"/>
+
+         <input name="password" type="password"/>
+        <input id="subbtn" type="button" value="submit">
+
+                    
+    </form>
+
+
+</body>
+</html>

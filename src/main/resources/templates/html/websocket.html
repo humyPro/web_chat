@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>websocket</title>
+    <script src="../../static/js/common/jquery-3.3.1.js"></script>
+    <script src="../../static/js/websocket.js"></script>
+    <script>
+        $(function () {
+
+
+
+            var nike = window.prompt("请输入你的昵称");
+
+
+            while ($.isEmptyObject(nike)) {
+                nike = window.prompt("请务必输入你的昵称");
+            }
+            $("#nike").text("用户:" + nike);
+            var socket = connect("ws:localhost:8080/echo/"+nike);
+            var addr='';
+
+            $("#send_to").change(function () {
+                addr=$(this).val();
+                console.log(addr)
+                if(!$.isEmptyObject(addr)){
+                    console.log("解除限制")
+                    $("button").removeAttr("disabled");
+                }else{
+                    $("button").attr("disabled","disabled");
+                }
+            });
+
+
+
+            $("#send").click(function () {
+                var msg = $("#input_msg").val();
+                if ($.isEmptyObject(msg)) {
+                    alert("不能发送空消息");
+                } else {
+
+                    var vo=new AddrAndMsg(nike,addr,msg);
+                    sendMessage(socket,JSON.stringify(vo));
+                }
+
+            });
+            $("#clear").click(function () {
+                $("#msgs").empty();
+            });
+
+
+            socket.onmessage=function(ev){
+                var msgVo=JSON.parse(ev.data);
+                console.log(JSON.stringify(msgVo));
+                console.log("收到消息:"+msgVo.msg);
+                console.log("发送人:"+msgVo.sender);
+                var date = new Date();
+                var hours =date.getHours();
+                var minutes = date.getMinutes();
+                var seconds = date.getSeconds();
+                if(minutes<10){
+                    minutes="0"+date;
+                }
+                if(hours<10){
+                    hours="0"+hours;
+                }
+                if(seconds<10){
+                    seconds="0"+seconds;
+                }
+                var date_str=hours+":"+minutes+":"+seconds;
+
+                $("#msgs").append($("<hr>"),$("<p></p>").text(date_str),$("<p></p>").text(msgVo.sender+" : "+msgVo.msg))
+            };
+        });
+
+
+        function AddrAndMsg(sender,addr,msg) {
+            this.sender=sender;
+            this.addr=addr;
+            this.msg=msg;
+        }
+    </script>
+</head>
+<body>
+<h3>websocket</h3>
+<div>
+    <p id="info">
+        <span id="nike">用户:</span>
+    </p>
+    <p>
+        <span>发送给:</span>
+        <input id="send_to" type="text">
+    </p>
+    <p>
+        <input id="input_msg" type="text">
+        <button id="send" type="button" disabled="disabled">发送</button>
+        <button id="clear" type="button" disabled="disabled">清除</button>
+    </p>
+</div>
+<div>
+    <p id="msgs">收到的消息:</p>
+</div>
+
+</body>
+</html>
